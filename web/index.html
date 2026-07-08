@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dungeon of Shadows</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="crt-overlay"></div>
+  <div class="game-shell">
+    <header class="title-bar">
+      <div class="title-gem"></div>
+      <h1>DUNGEON OF SHADOWS</h1>
+      <div class="title-gem"></div>
+    </header>
+
+    <section class="status-panel">
+      <div class="status-block">
+        <span class="label">HP</span>
+        <div class="hp-bar-frame">
+          <div id="hp-bar" class="hp-bar-fill"></div>
+        </div>
+        <span id="hp-text" class="value">100 / 100</span>
+      </div>
+      <div class="status-block weapon-block">
+        <span class="label">WEAPON</span>
+        <span id="weapon-text" class="value">Rusty Sword</span>
+      </div>
+      <div class="status-block inventory-block">
+        <span class="label">INVENTORY</span>
+        <span id="inventory-text" class="value">Rusty Sword</span>
+      </div>
+    </section>
+
+    <main class="scene-panel">
+      <div class="scene-art" aria-hidden="true">
+        <div class="torch torch-left"></div>
+        <div class="torch torch-right"></div>
+        <div class="dungeon-floor"></div>
+        <div class="skull">☠</div>
+      </div>
+
+      <article class="dialogue-box">
+        <h2 id="room-title">Loading...</h2>
+        <p id="room-narrative">Preparing your adventure...</p>
+        <p id="room-message" class="message hidden"></p>
+      </article>
+    </main>
+
+    <nav id="choices" class="choices-panel"></nav>
+
+    <footer class="action-panel">
+      <button id="primary-action" class="pixel-btn" type="button">BEGIN QUEST</button>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
