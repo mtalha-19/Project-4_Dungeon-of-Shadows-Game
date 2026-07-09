@@ -275,6 +275,16 @@ void handleClient(int clientSocket, std::map<std::string, DungeonGame>& sessions
     char buffer[kBufferSize];
 
     while (raw.find("\r\n\r\n") == std::string::npos) {
+        // If header sequence exceeds a reasonable limit drop it
+        if (raw.size() > 16384) {
+            const std::string response = buildResponse(
+                431, "Request Header Fields Too Large", "text/plain",
+                "Header too large");
+            send(clientSocket, response.c_str(), response.size(), 0);
+            close(clientSocket);
+            return;
+        }
+
         const ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
         if (bytesRead <= 0) {
             close(clientSocket);
@@ -296,8 +306,29 @@ void handleClient(int clientSocket, std::map<std::string, DungeonGame>& sessions
 
             const auto contentLengthIt = request.headers.find("content-length");
             if (contentLengthIt != request.headers.end()) {
-                const std::size_t expectedBodySize =
-                    static_cast<std::size_t>(std::stoul(contentLengthIt->second));
+                std::size_t expectedBodySize = 0;
+                try {
+                    expectedBodySize = static_cast<std::size_t>(std::stoul(contentLengthIt->second));
+                } catch (...) {
+                    // If Content Length is malicious or malformed reject and close connection safely
+                    const std::string response = buildResponse(
+                        400, "Bad Request", "text/plain",
+                        "Invalid Content-Length");
+                    send(clientSocket, response.c_str(), response.size(), 0);
+                    close(clientSocket);
+                    return;
+                }
+
+                // Enforce a maximum body limit to prevent RAM exhaustion
+                if (expectedBodySize > 10 * 1024 * 1024) {
+                    const std::string response = buildResponse(
+                        413, "Payload Too Large", "text/plain",
+                        "Payload Too Large");
+                    send(clientSocket, response.c_str(), response.size(), 0);
+                    close(clientSocket);
+                    return;
+                }
+
                 while (request.body.size() < expectedBodySize) {
                     const ssize_t bodyRead =
                         recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
